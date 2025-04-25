@@ -112,7 +112,7 @@ wc -l ../output/blastout_cds_raw.tab
 ## Blast cds output does not have LOC information in output, here we will retrieve that to prep for joining with deseq2 out.
 
 ```{bash}
- cat ../data/ncbi_dataset_202404/data/GCF_026571515.1/cds_from_genomic.fna | grep ">" > ../output/cds_from_genomic_headers.txt
+ cat ../data/ncbi_dataset/data/GCF_026571515.1/cds_from_genomic.fna | grep ">" > ../output/cds_from_genomic_headers.txt
 
 ```
 
@@ -160,13 +160,5 @@ best_hits <- blast_results %>% group_by(gene) %>% dplyr::slice(which.min(evalue)
 
 # Save best hits
 write.table(best_hits, "../output/blastout_cds_genelevel.tab", row.names = T, col.names = T)
-
-
-
-```
-
-```{r}
-
-
 
 ```
