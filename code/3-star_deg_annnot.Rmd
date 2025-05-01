@@ -112,3 +112,51 @@ head(DEG_list)
 
 write.csv(DEG_list, "../output/DEG_masterlist.csv", col.names = T)
 ```
+
+### Full SPID list (all genes expressed after filter)
+
+Needed for enrichment analysis background
+
+```{r}
+
+allgenes <- read.csv("../output/DESeq_res-ToC_8ind27r.tab", sep="")
+head(allgenes)
+
+allgenes$LOC <- row.names(allgenes)
+head(allgenes)
+
+```
+
+```{r}
+# join the two tables 
+
+allgenes_SPID <- left_join(allgenes, blast, by = "LOC")
+head(allgenes_SPID)
+
+write.csv(allgenes_SPID, "../output/blastout_AllExpressed.csv", col.names = T)
+```
+
+```{r}
+# save just SPIDs 
+
+SPID_allexpressed <- allgenes_SPID$SPID
+
+write(SPID_allexpressed, "../output/SPID_allexpressed.txt")
+
+```
+
+### Functional annotation (DAVID) results:
+
+Gene List: "../output/DEG_SPID_star.txt"
+
+Background List: "../output/SPID_allexpressed.txt"
+
+[Functional Annotation Clustering](https://davidbioinformatics.nih.gov/data/download/t2t_AC6A9659C7B01746126159378.txt)
+
+![](images/DAVID_funannotcluster.png)
+
+[Functional Annotation Chart](https://davidbioinformatics.nih.gov/data/download/chart_AC6A9659C7B01746126346574.txt)
+
+![](images/DAVID_funannotchart.png)
+
+[Functional Annotation Table](https://davidbioinformatics.nih.gov/data/download/tr_AC6A9659C7B01746125998026.txt) (too large to include image -- contains no significance information)
