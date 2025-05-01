@@ -39,7 +39,7 @@ output: html_document
 #note: in BBEdit I replaced the "Type" information: replaced "protein-coding" with "mito" for the first 13 genes 
 #which are the mitochondrial genes
 
-counts<- read.csv("../data/chisq_rnatypes/count_data_mitoedit.csv", row.names = 1)
+counts<- read.csv("../data/STAR_count_data.csv", row.names = 1)
 head(counts)
 
 ```
@@ -50,7 +50,7 @@ preparation of count data
 
 ```{r}
 # Read the star counts output file into R
-starCounts <- read.csv("../output/STAR_count_data.csv", header=TRUE, row.names=1)
+starCounts <- read.csv("../data/STAR_count_data.csv", header=TRUE, row.names=1)
 head(starCounts)
 
 #subset from feature counts of just the count data
@@ -84,7 +84,7 @@ dds <- DESeq(dds)
 ### normalization
 
 ```{r}
-#normalizing the data using ratio of means (size factors)
+#normalizing the data using ratio of medians (size factors)
 
 dds <- estimateSizeFactors(dds)
 sizeFactors(dds)
@@ -125,7 +125,7 @@ colnames(norm_counts)[colnames(norm_counts) == 'M.T.193'] <- 'M.C.193'
 head(norm_counts)
 ```
 
-### Chi Square – Normalized Counts
+### Chi Square -- Normalized Counts
 
 ```{r}
 
@@ -189,29 +189,44 @@ head(pie_data)
 chart itself
 
 ```{r}
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(patchwork)
+colorblind_palette <- c( "#56B4E9","#E69F00", "#009E73","#999999","#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-# Convert data to long format
-pie_long <- pie_data %>%
-  pivot_longer(cols = c(control_sum, treatment_sum), 
-               names_to = "group", 
-               values_to = "value")
-
-# Create the stacked bar chart
-stacked_bar <- ggplot(pie_long, aes(x = group, y = value, fill = factor(Type))) +
-  geom_bar(stat = "identity", width = 0.5, position = "fill") +  # Stacked bar chart
-  scale_y_continuous(labels = scales::percent) +  # Show percentage
+# Panel A: Control
+control_plot <- ggplot(filter(pie_long, group == "control_sum"), 
+                       aes(x = "Control", y = value, fill = factor(Type))) +
+  geom_bar(stat = "identity", width = 0.5) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = colorblind_palette) +
   theme_minimal() +
-  scale_x_discrete(labels=c("unprimed eggs", "primed eggs")) +
-  labs(x = "", y = "Proportion of Reads", fill = "Type") +
-  ggtitle("Proportion of Reads by Gene Type")
+  labs(x = "", y = "Proportion of Reads", fill = "Type", title = "A. Unprimed Eggs") +
+  theme(legend.position = "none")  # Hide individual legend
 
-# Display plot
-stacked_bar
+# Panel B: Treatment
+treatment_plot <- ggplot(filter(pie_long, group == "treatment_sum"), 
+                         aes(x = "Treatment", y = value, fill = factor(Type))) +
+  geom_bar(stat = "identity", width = 0.5) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_manual(values = colorblind_palette) +
+  theme_minimal() +
+  labs(x = "", y = "Proportion of Reads", fill = "Type", title = "B. Primed Eggs") +
+  theme(legend.position = "none")  # Hide individual legend
 
+# Combine plots with shared legend on the right and overall title
+final_plot <- (control_plot | treatment_plot) +
+  plot_layout(guides = "collect") & 
+  theme(legend.position = "right")  # Move shared legend to right
+
+final_plot <- final_plot + 
+  plot_annotation(
+    title = "Proportion of Reads by RNA Type",
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, face = "bold")
+    )
+  )
+
+# View or save
+ ggsave("../images/chisq_stackedbar.png", final_plot, width = 10, height = 10)
+final_plot
 
 ```
 
