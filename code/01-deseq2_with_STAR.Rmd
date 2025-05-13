@@ -331,7 +331,7 @@ annotation_col <- data.frame(Condition = factor(condition_vector))
 rownames(annotation_col) <- short_col  # Ensure rownames match column names of data
 
 # Define colors for annotation
-ann_colors <- list(Condition = c(Control = "cadetblue", Primed = "salmon"), Border = "grey")
+ann_colors <- list(Condition = c(Control = "darkblue", Primed = "goldenrod1"), Border = "grey")
 
 # Save the heatmap
 png("../images/DEG_named_heatmap_unclust.png", width = 1000, height = 700)
@@ -342,7 +342,8 @@ pheatmap(log_counts_deg,
          main = "Heatmap All DEGs (padj < 0.05) Clustered",
          border_color = "grey", 
          annotation_col = annotation_col,  # Add annotation
-         annotation_colors = ann_colors # Define annotation colors
+         annotation_colors = ann_colors, # Define annotation colors
+         labels_col = NA 
         )   
 
 dev.off()
