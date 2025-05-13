@@ -343,7 +343,7 @@ pheatmap(log_counts_deg,
          border_color = "grey", 
          annotation_col = annotation_col,  # Add annotation
          annotation_colors = ann_colors, # Define annotation colors
-         labels_col = NA 
+         labels_col = ""
         )   
 
 dev.off()
