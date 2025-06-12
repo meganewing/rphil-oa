@@ -1,0 +1,118 @@
+---
+title: "Untitled"
+author: "Megan Ewing"
+date: "2025-06-12"
+output: html_document
+---
+
+```{r}
+functionalmatrix <- read.csv("~/rphil-oa/data/functionalmatrix.csv")
+head(functionalmatrix)
+```
+
+
+```{r}
+
+# Assign unique row names from the first column
+rownames(functionalmatrix) <- make.unique(functionalmatrix$RefSeq_genename)
+head(functionalmatrix)
+
+# Drop the first column after setting row names
+functionalmatrix <- functionalmatrix[, -1]
+head(functionalmatrix)
+
+# Make row names of heatmap matrix unique in the same way
+rownames(log_counts_deg) <- make.unique(rownames(log_counts_deg))
+head(log_counts_deg)
+
+# align rows of functional matrix to match log_counts_deg
+functionalmatrix <- functionalmatrix[rownames(log_counts_deg), ]
+
+
+```
+
+
+```{r}
+library(reshape2)
+library(ggplot2)
+
+# Convert to data frame and add rownames as a column
+dot_df <- reshape2::melt(cbind(Gene = rownames(functionalmatrix), functionalmatrix))
+# Rename columns
+colnames(dot_df) <- c("Gene", "Function", "Present")
+# Keep only where Present == 1
+dot_df <- subset(dot_df, Present == 1)
+
+# dot plot
+dot_plot <- ggplot(dot_df, aes(x = Function, y = Gene)) +
+  geom_point(size = 1.5) +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1),
+        panel.grid = element_blank()) +
+  xlab("Functional Annotation") +
+  ylab(NULL)
+
+```
+
+```{r}
+library(reshape2)
+library(ggplot2)
+
+# Assume `functionalmatrix` has rownames and only 0s and 1s
+
+# Add rownames as column and melt
+dot_df <- melt(cbind(Gene = rownames(functionalmatrix), functionalmatrix))
+colnames(dot_df) <- c("Gene", "Function", "Present")
+
+# Convert Present to numeric in case it's a character
+dot_df$Present <- as.numeric(dot_df$Present)
+
+# Keep only present == 1
+dot_df <- subset(dot_df, Present == 1)
+
+# Create dot plot
+dot_plot <- ggplot(dot_df, aes(x = Function, y = Gene)) +
+  geom_point(size = 1.5) +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.x = element_text(angle = 90, hjust = 1),
+        panel.grid = element_blank()) +
+  xlab("Functional Annotation") +
+  ylab(NULL)
+
+# Print plot
+print(dot_plot)
+
+```
+```{r}
+library(pheatmap)
+
+# Save the heatmap as a grob
+heatmap_grob <- pheatmap(log_counts_deg,
+                         scale = "row",
+                         cluster_cols = FALSE,
+                         border_color = "grey",
+                         annotation_col = annotation_col,
+                         annotation_colors = ann_colors,
+                         labels_col = "",
+                         show_rownames = TRUE,  # Optional: Set to FALSE if you want to show only in dot plot
+                         silent = TRUE)  # Prevent plotting now
+
+```
+
+
+```{r}
+library(gridExtra)
+
+grid.arrange(heatmap_grob$gtable, ggplotGrob(dot_plot), ncol = 2, widths = c(4, 2))
+
+```
+
+
+
+
+
+
