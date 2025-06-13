@@ -324,14 +324,14 @@ short_col <- c("M.C.193", "M.C.216", "M.C.218", "M.C.226", "M.C.306", "M.C.329",
 colnames(log_counts_deg) <- short_col
 
 # Define conditions (Ensure this matches the column order)
-condition_vector <- c(rep("Control", 15), rep("Primed", 15))  
+condition_vector <- c(rep("Ambient", 15), rep("Low_pH", 15))  
 
 # Create annotation for the heatmap
-annotation_col <- data.frame(Condition = factor(condition_vector))
+annotation_col <- data.frame(Parental_Condition = factor(condition_vector))
 rownames(annotation_col) <- short_col  # Ensure rownames match column names of data
 
 # Define colors for annotation
-ann_colors <- list(Condition = c(Control = "darkblue", Primed = "goldenrod1"), Border = "grey")
+ann_colors <- list(Parental_Condition = c(Ambient = "darkblue", Low_pH = "goldenrod1"), Border = "grey")
 
 # Save the heatmap
 png("../images/DEG_named_heatmap_unclust.png", width = 1000, height = 700)
@@ -339,7 +339,6 @@ png("../images/DEG_named_heatmap_unclust.png", width = 1000, height = 700)
 pheatmap(log_counts_deg, 
          scale = "row", 
          cluster_cols = FALSE, 
-         main = "Heatmap All DEGs (padj < 0.05) Clustered",
          border_color = "grey", 
          annotation_col = annotation_col,  # Add annotation
          annotation_colors = ann_colors, # Define annotation colors
